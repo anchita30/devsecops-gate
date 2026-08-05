@@ -60,3 +60,6 @@ jobs:
         with:
           name: license-report
           path: license-report.json
+
+      - name: Run policy gate
+        run: python3 scripts/policy_gate.py
