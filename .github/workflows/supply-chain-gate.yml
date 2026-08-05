@@ -30,7 +30,7 @@ jobs:
           path: sbom.cyclonedx.json
         
       - name: Scan SBOM for CVEs
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: sbom
           scan-ref: sbom.cyclonedx.json
