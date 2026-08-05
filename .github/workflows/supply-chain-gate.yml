@@ -15,22 +15,7 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t devsecops-gate-demo:${{ github.sha }} .
-        name: Supply Chain Gate
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
@@ -43,5 +28,3 @@ jobs:
         with:
           name: sbom
           path: sbom.cyclonedx.json
-        run: docker build -t devsecops-gate-demo:${{ github.sha }} .
-
