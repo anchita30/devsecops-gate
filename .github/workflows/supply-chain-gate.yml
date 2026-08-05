@@ -44,3 +44,19 @@ jobs:
         with:
           name: cve-report
           path: trivy-cve-report.json
+      
+      - name: Scan for license issues
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: devsecops-gate-demo:${{ github.sha }}
+          scanners: license
+          format: json
+          output: license-report.json
+          exit-code: 0
+
+      - name: Upload license report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: license-report.json
