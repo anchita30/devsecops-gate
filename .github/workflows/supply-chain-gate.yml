@@ -28,3 +28,19 @@ jobs:
         with:
           name: sbom
           path: sbom.cyclonedx.json
+        
+      - name: Scan SBOM for CVEs
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: sbom
+          scan-ref: sbom.cyclonedx.json
+          format: json
+          output: trivy-cve-report.json
+          exit-code: 0
+          severity: CRITICAL,HIGH,MEDIUM,LOW
+
+      - name: Upload CVE report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cve-report
+          path: trivy-cve-report.json
