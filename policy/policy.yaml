@@ -1,0 +1,9 @@
+cve_policy:
+  blocked_severities: ["CRITICAL"]
+  exemptions:
+    - id: "CVE-2015-9235"
+      reason: "Accepted risk, no exploit path in our usage"
+      expires: "2026-09-01"
+
+license_policy:
+  blocked_prefixes: ["GPL", "AGPL"]

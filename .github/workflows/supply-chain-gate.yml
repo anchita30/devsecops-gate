@@ -72,7 +72,10 @@ jobs:
           path: license-report.json
 
       - name: Run policy gate
-        run: python3 scripts/policy_gate.py
+        
+        run: 
+              pip install pyyaml
+              python3 scripts/policy_gate.py
 
       - name: Log in to GitHub Container Registry
         if: success()
