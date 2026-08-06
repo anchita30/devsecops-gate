@@ -51,10 +51,11 @@ jobs:
           scan-type: image
           image-ref: devsecops-gate-demo:${{ github.sha }}
           scanners: license
-          pkg-types: library
           format: json
           output: license-report.json
           exit-code: 0
+        env:
+          TRIVY_PKG_TYPES: library
 
       - name: Upload license report as artifact
         uses: actions/upload-artifact@v4
