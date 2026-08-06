@@ -6,6 +6,14 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+env:
+  IMAGE_NAME: "ghcr.io/${{ github.repository_owner }}/devsecops-gate-demo"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,12 +22,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t devsecops-gate-demo:${{ github.sha }} .
+        run: docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
 
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: devsecops-gate-demo:${{ github.sha }}
+          image: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: cyclonedx-json
           output-file: sbom.cyclonedx.json
 
@@ -28,7 +36,7 @@ jobs:
         with:
           name: sbom
           path: sbom.cyclonedx.json
-        
+
       - name: Scan SBOM for CVEs
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -44,12 +52,12 @@ jobs:
         with:
           name: cve-report
           path: trivy-cve-report.json
-      
+
       - name: Scan for license issues
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
-          image-ref: devsecops-gate-demo:${{ github.sha }}
+          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           scanners: license
           format: json
           output: license-report.json
@@ -65,3 +73,23 @@ jobs:
 
       - name: Run policy gate
         run: python3 scripts/policy_gate.py
+
+      - name: Log in to GitHub Container Registry
+        if: success()
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image to GHCR
+        if: success()
+        run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Install cosign
+        if: success()
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign the image (keyless)
+        if: success()
+        run: cosign sign --yes ${{ env.IMAGE_NAME }}:${{ github.sha }}
