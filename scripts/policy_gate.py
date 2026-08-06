@@ -3,7 +3,7 @@ import sys
 
 CVE_REPORT = "trivy-cve-report.json"
 LICENSE_REPORT = "license-report.json"
-BLOCKED_LICENSE_KEYWORDS = ["GPL"]
+BLOCKED_LICENSE_PREFIXES = ["GPL", "AGPL"]
 
 failures = []
 
@@ -28,7 +28,8 @@ with open(LICENSE_REPORT) as f:
 for result in license_data.get("Results", []):
     for lic in result.get("Licenses", []):
         name = lic.get("Name", "")
-        if any(keyword in name for keyword in BLOCKED_LICENSE_KEYWORDS):
+        # Match only strict GPL/AGPL, not LGPL (LGPL starts with "L", not "GPL"/"AGPL")
+        if any(name.upper().startswith(prefix) for prefix in BLOCKED_LICENSE_PREFIXES):
             failures.append(
                 f"Blocked license '{name}' found in {lic.get('PkgName', 'unknown package')}"
             )
