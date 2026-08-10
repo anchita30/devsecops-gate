@@ -96,3 +96,14 @@ jobs:
       - name: Sign the image (keyless)
         if: success()
         run: cosign sign --yes ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Verify signature before deploy
+        if: success()
+        run: |
+          cosign verify ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --certificate-identity-regexp="https://github.com/${{ github.repository }}/.*" \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
+
+      - name: Simulate deploy
+        if: success()
+        run: echo "✅ Signature verified. Deploying ${{ env.IMAGE_NAME }}:${{ github.sha }} now."
